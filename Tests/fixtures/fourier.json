@@ -1,0 +1,4 @@
+{
+  "kind": "math",
+  "latex": "\\hat{f}(\\xi) = \\int_{-\\infty}^{\\infty} f(x)\\, e^{-2\\pi i x \\xi}\\,dx"
+}

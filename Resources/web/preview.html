@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="katex/katex.min.css">
+<link rel="stylesheet" href="preview.css">
+<script src="katex/katex.min.js"></script>
+<script src="latexkit.js"></script>
+</head>
+<body>
+<main id="content"></main>
+<script>
+(function () {
+  "use strict";
+  var content = document.getElementById("content");
+  var lastHeight = -1;
+
+  function report() {
+    var height = Math.ceil(content.getBoundingClientRect().height);
+    var handlers = window.webkit && window.webkit.messageHandlers;
+    if (height !== lastHeight && handlers && handlers.size) {
+      lastHeight = height;
+      handlers.size.postMessage(height);
+    }
+  }
+
+  // Called by the app with {kind, latex, background?}.
+  window.texsnapRender = function (payload) {
+    content.className = "kind-" + payload.kind;
+    content.innerHTML = LatexKit.preview(payload.kind, payload.latex);
+    if (payload.background) document.body.style.background = payload.background;
+    requestAnimationFrame(report);
+  };
+
+  // Renders, waits for the KaTeX fonts, and returns the content height (used for snapshots).
+  // Timers rather than animation frames: frames never fire in a window that is not on screen.
+  window.texsnapRenderAndMeasure = async function (payload) {
+    window.texsnapRender(payload);
+    await document.fonts.ready;
+    await new Promise(function (resolve) { setTimeout(resolve, 50); });
+    return Math.ceil(content.getBoundingClientRect().height);
+  };
+
+  new ResizeObserver(report).observe(content);
+  document.fonts.ready.then(report);
+})();
+</script>
+</body>
+</html>

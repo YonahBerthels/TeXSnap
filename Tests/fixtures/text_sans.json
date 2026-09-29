@@ -1,0 +1,4 @@
+{
+  "kind": "text",
+  "latex": "Gradient descent updates the parameters by $\\theta_{t+1} = \\theta_t - \\eta \\nabla_\\theta L(\\theta_t)$, where $\\eta > 0$ is the learning rate."
+}

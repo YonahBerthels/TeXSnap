@@ -1,0 +1,4 @@
+{
+  "kind": "math",
+  "latex": "P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}, \\quad k = 0, 1, \\ldots, n"
+}

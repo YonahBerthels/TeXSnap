@@ -1,0 +1,4 @@
+{
+  "kind": "text",
+  "latex": "Let $f\\colon [a,b] \\to \\mathbb{R}$ be continuous. Then there exists $c \\in (a,b)$ such that\n\\[ \\int_a^b f(x)\\,dx = f(c)\\,(b-a). \\]\nThis is the \\emph{mean value theorem for integrals}; it follows from the extreme value theorem applied to $f$ on $[a,b]$."
+}

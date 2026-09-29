@@ -1,0 +1,4 @@
+{
+  "kind": "table",
+  "latex": "\\begin{tabular}{|c|c|c|}\n\\hline\n\\multirow{2}{*}{Model} & \\multicolumn{2}{c|}{Error} \\\\\n\\cline{2-3}\n & Train & Test \\\\\n\\hline\nLinear & 0.12 & 0.15 \\\\\nMLP & 0.05 & 0.09 \\\\\n\\hline\n\\end{tabular}"
+}

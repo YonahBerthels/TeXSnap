@@ -1,0 +1,4 @@
+{
+  "kind": "math",
+  "latex": "\\varepsilon_{ij} = \\frac{1}{2}\\left(\\partial_i u_j + \\partial_j u_i\\right), \\quad \\varphi(\\vartheta) = \\ell \\cos\\vartheta"
+}

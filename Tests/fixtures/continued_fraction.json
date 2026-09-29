@@ -1,0 +1,4 @@
+{
+  "kind": "math",
+  "latex": "\\phi = 1 + \\cfrac{1}{1 + \\cfrac{1}{1 + \\cfrac{1}{1 + \\cdots}}}"
+}

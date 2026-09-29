@@ -1,0 +1,4 @@
+{
+  "kind": "table",
+  "latex": "\\begin{tabular}{|l|c|r|r|}\n\\hline\nCountry & Code & Population & Area (km$^2$) \\\\\n\\hline\nFrance & FR & 68,042,591 & 643,801 \\\\\nJapan & JP & 124,516,650 & 377,975 \\\\\nBrazil & BR & 203,062,512 & 8,515,767 \\\\\n\\hline\n\\end{tabular}"
+}

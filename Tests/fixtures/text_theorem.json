@@ -1,0 +1,4 @@
+{
+  "kind": "text",
+  "latex": "\\textbf{Theorem 2.1.} \\textit{Let $G$ be a finite group and $H \\leq G$ a subgroup. Then $|H|$ divides $|G|$, and}\n\\[ [G : H] = \\frac{|G|}{|H|}. \\]"
+}
