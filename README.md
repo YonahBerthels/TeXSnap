@@ -71,5 +71,9 @@ python3 Tests/mock_api_test.py        # the API engine against a local mock serv
 The app binary also has a command line mode (`TeXSnap --help` for `--recognize`, `--render-preview` and more),
 which the tests and the training tools use.
 
-Third-party: [KaTeX](https://katex.org) (MIT) renders previews; the offline model is based on
-[PaddleOCR-VL](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) (Apache 2.0).
+## License and credits
+
+TeXSnap is released under the [MIT License](LICENSE). It bundles [KaTeX](https://katex.org) (MIT); the offline
+model is a fine-tuned [PaddleOCR-VL](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) and is distributed
+separately under Apache 2.0. See [CREDITS.md](CREDITS.md) for everything TeXSnap builds on, including the
+training data.

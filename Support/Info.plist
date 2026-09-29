@@ -47,7 +47,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Screenshots to LaTeX with Claude. KaTeX © Khan Academy (MIT).</string>
+	<string>© 2026 Yonah Berthels, MIT License. KaTeX © Khan Academy (MIT).</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticTermination</key>
