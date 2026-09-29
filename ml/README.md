@@ -38,7 +38,17 @@ All commands run from this folder with the venv's Python (`uv venv --python 3.12
 6. **Install**: `.venv/bin/python install_local.py runs/r1/adapters.safetensors` fuses the adapter, quantizes to
    8-bit (≈1 GB), smoke-tests it and installs it to `~/Library/Application Support/TeXSnap/LocalModel`.
    Then choose *On this Mac (offline)* in TeXSnap's Settings.
-7. **Share**: zip the installed `model/` folder as `texsnap-model-vN/` together with `MODEL_CARD.md` (as README.md)
+7. **Learn from real use**: TeXSnap saves corrections of the offline model (edits and Double-check fixes) to
+   `~/Library/Application Support/TeXSnap/Corrections` in this same dataset format. Mix them into the next run,
+   repeated so a few hundred real examples weigh against thousands of synthetic ones (`DIR*5` = each row five
+   times), and continue from the installed adapter:
+
+       .venv/bin/python gen/mix.py --out data/ds3 --add data/ds1/train:6000 \
+         --add "$HOME/Library/Application Support/TeXSnap/Corrections*5"
+       .venv/bin/python train.py --adapter-path runs/r1-8000 --dataset data/ds3 ...   # as in step 4
+
+   Evaluate on both test sets before installing (step 5): corrections are few, so watch for regressions.
+8. **Share**: zip the installed `model/` folder as `texsnap-model-vN/` together with `MODEL_CARD.md` (as README.md)
    and the base model's Apache-2.0 `LICENSE`, attach it to a GitHub release, and update `TAG`, `ASSET` and
    `SHA256` in `scripts/install-model.sh`, which is what other people run (it needs only
    `requirements-serve.txt`, not the training environment).

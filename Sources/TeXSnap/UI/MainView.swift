@@ -85,34 +85,54 @@ struct HistoryList: View {
     @ObservedObject var store: SnipStore
     @ObservedObject var settings: Settings
 
+    @State private var query = ""
+
     var body: some View {
+        let visible = store.snips.filter { $0.matches(query) }
+        let pinned = visible.filter(\.pinned)
+        let recent = visible.filter { !$0.pinned }
         List(selection: $store.selection) {
-            ForEach(store.snips) { snip in
-                HistoryRow(snip: snip, image: store.image(for: snip), live: store.live[snip.id])
-                    .tag(snip.id)
-                    .contextMenu {
-                        Button("Copy") {
-                            if let value = store.defaultFormatValue(snip) {
-                                store.copy(value, snip: snip.id, format: settings.defaultFormat(for: snip.kind))
-                            }
-                        }
-                        .disabled(snip.status != .done || snip.kind == .none)
-                        Button("Retry") { store.recognize(snip.id, mode: .transcribe) }
-                        Button("Show Image in Finder") {
-                            NSWorkspace.shared.activateFileViewerSelecting([store.imageURL(snip)])
-                        }
-                        Divider()
-                        Button("Delete", role: .destructive) { store.delete([snip.id]) }
-                    }
+            if !pinned.isEmpty {
+                Section("Pinned") { rows(pinned) }
+            }
+            Section {
+                rows(recent)
+            } header: {
+                if !pinned.isEmpty && !recent.isEmpty { Text("Recent") }
             }
         }
+        .searchable(text: $query, placement: .sidebar, prompt: "Search LaTeX")
         .onDeleteCommand {
             if let id = store.selection { store.delete([id]) }
         }
         .overlay {
             if store.snips.isEmpty {
                 Text("No snips yet").foregroundStyle(.secondary)
+            } else if visible.isEmpty {
+                Text("No snips match “\(query)”").foregroundStyle(.secondary).padding()
             }
+        }
+    }
+
+    private func rows(_ snips: [Snip]) -> some View {
+        ForEach(snips) { snip in
+            HistoryRow(snip: snip, image: store.image(for: snip), live: store.live[snip.id])
+                .tag(snip.id)
+                .contextMenu {
+                    Button("Copy") {
+                        if let value = store.defaultFormatValue(snip) {
+                            store.copy(value, snip: snip.id, format: settings.defaultFormat(for: snip.kind))
+                        }
+                    }
+                    .disabled(snip.status != .done || snip.kind == .none)
+                    Button(snip.pinned ? "Unpin" : "Pin") { store.togglePin(snip.id) }
+                    Button("Retry") { store.recognize(snip.id, mode: .transcribe) }
+                    Button("Show Image in Finder") {
+                        NSWorkspace.shared.activateFileViewerSelecting([store.imageURL(snip)])
+                    }
+                    Divider()
+                    Button("Delete", role: .destructive) { store.delete([snip.id]) }
+                }
         }
     }
 }
@@ -144,6 +164,9 @@ private struct HistoryRow: View {
                 HStack(spacing: 4) {
                     statusIcon
                     Text(timestamp)
+                    if snip.pinned {
+                        Image(systemName: "pin.fill").help("Pinned: kept when the history is trimmed or cleared")
+                    }
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -191,7 +214,7 @@ struct EmptyStateView: View {
                 .foregroundStyle(.tint)
             Text("Turn screenshots into LaTeX")
                 .font(.title2.weight(.semibold))
-            Text("Press \(settings.hotKey.display) anywhere and drag over an equation, table or passage. TeXSnap transcribes it with Claude and copies the LaTeX to your clipboard.")
+            Text("Press \(settings.hotKey.display) anywhere and drag over an equation, table or passage. TeXSnap transcribes it and copies the LaTeX to your clipboard.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: 440)
@@ -224,10 +247,14 @@ struct EmptyStateView: View {
             Text("Using \(settings.engineSummary == "Claude Code" ? "Claude Code and your Claude login" : "the Anthropic API") · \(ModelCatalog.info(settings.model).name)")
                 .font(.callout)
                 .foregroundStyle(.secondary)
+        case "Local model":
+            Text("Using the offline model on this Mac")
+                .font(.callout)
+                .foregroundStyle(.secondary)
         default:
             HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-                Text("Add an Anthropic API key or install Claude Code to start.")
+                Text("Add an Anthropic API key, install Claude Code or install the offline model to start.")
                 Button("Open Settings", action: actions.settings)
             }
             .font(.callout)

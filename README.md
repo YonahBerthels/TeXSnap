@@ -3,7 +3,10 @@
 A Mathpix-style menu bar app for macOS: snip part of the screen and get LaTeX for the formula, table or
 passage of math text in it, rendered next to the snip and copied to the clipboard.
 
-- **⌃⌘M** snips a region anywhere (Space switches to window selection, Esc cancels).
+- **⌃⌘M** snips a region anywhere (Space switches to window selection, Esc cancels). The result appears in a
+  small pop-up next to the pointer, with one-click copy buttons; it closes by itself (Settings can switch to
+  the full window instead).
+- The history is searchable (by LaTeX or kind), and pinned snips stay at the top and are never trimmed.
 - **Left-click** the √x icon in the menu bar for the window; **right-click** for the menu
   (convert a clipboard image, open an image file, copy a recent snip, settings).
 - Copies math as LaTeX, `$…$`, `\[…\]`, an equation environment or MathML (for Word); tables as LaTeX,
@@ -51,7 +54,9 @@ and choose **Engine › On this Mac (offline)**. The model loads on the first sn
 minutes. Double-check still uses Claude when it is set up.
 
 It is less accurate than Claude, mostly on tables with cells merged across rows, handwriting and unusual
-layouts. Details and how it was trained: [ml/README.md](ml/README.md) and [ml/MODEL_CARD.md](ml/MODEL_CARD.md).
+layouts. When you correct one of its results (by editing it, or with Double-check), TeXSnap keeps the image and
+the corrected LaTeX in `~/Library/Application Support/TeXSnap/Corrections`, ready to train the next version on
+(Settings › Offline model training; nothing leaves your Mac). Details and how it was trained: [ml/README.md](ml/README.md) and [ml/MODEL_CARD.md](ml/MODEL_CARD.md).
 
 ## Privacy
 

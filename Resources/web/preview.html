@@ -25,12 +25,32 @@
     }
   }
 
-  // Called by the app with {kind, latex, background?}.
+  var fitWidth = false;
+
+  // With fitWidth, scales wide displays and tables down (to at most 45%) instead of scrolling them sideways.
+  function fit() {
+    content.style.zoom = "";
+    if (!fitWidth) return;
+    // Either an inner scroller overflows, or the content spills past the page itself.
+    var overflow = Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    content.querySelectorAll(".tx-display, .tx-table-wrap, table").forEach(function (el) {
+      overflow = Math.max(overflow, el.scrollWidth - el.clientWidth,
+                          el.getBoundingClientRect().right - document.documentElement.clientWidth);
+    });
+    if (overflow > 0) {
+      var width = content.clientWidth;
+      content.style.zoom = String(Math.max(0.45, width / (width + overflow + 4)));
+    }
+    report();
+  }
+
+  // Called by the app with {kind, latex, background?, fitWidth?}.
   window.texsnapRender = function (payload) {
     content.className = "kind-" + payload.kind;
     content.innerHTML = LatexKit.preview(payload.kind, payload.latex);
     if (payload.background) document.body.style.background = payload.background;
-    requestAnimationFrame(report);
+    fitWidth = !!payload.fitWidth;
+    requestAnimationFrame(function () { fit(); report(); });
   };
 
   // Renders, waits for the KaTeX fonts, and returns the content height (used for snapshots).
@@ -43,7 +63,7 @@
   };
 
   new ResizeObserver(report).observe(content);
-  document.fonts.ready.then(report);
+  document.fonts.ready.then(function () { fit(); report(); });
 })();
 </script>
 </body>

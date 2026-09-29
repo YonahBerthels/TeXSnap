@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var settings: Settings
+    @ObservedObject var corrections: CorrectionLog
     let clearHistory: () -> Void
     let pauseHotKey: (Bool) -> Void
 
@@ -12,6 +13,7 @@ struct SettingsView: View {
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var loginError: String?
     @State private var confirmClear = false
+    @State private var confirmClearCorrections = false
     @State private var claudeLocation: String = ""
 
     private static let formatChoices: [SnipKind: [(id: String, title: String)]] = [
@@ -102,6 +104,37 @@ struct SettingsView: View {
                 Picker("Text copies as", selection: formatBinding(.text)) { options(.text) }
                     .disabled(!settings.autoCopy)
                 Toggle("Play a sound when a snip is done", isOn: $settings.playSound)
+                Toggle(isOn: $settings.showResultPopup) {
+                    Text("Show results in a pop-up")
+                    Text("A small panel near the pointer with the rendering and copy buttons. Off: open the window.")
+                }
+            }
+
+            Section {
+                Toggle(isOn: $settings.keepCorrections) {
+                    Text("Keep corrections of the offline model")
+                    Text("When you edit a result of the offline model, or Double-check changes it, TeXSnap keeps the image and the corrected LaTeX as a training example for the next fine-tune. They never leave this Mac.")
+                }
+                LabeledContent("Saved") {
+                    HStack {
+                        Text(corrections.count == 1 ? "1 correction" : "\(corrections.count) corrections")
+                            .foregroundStyle(.secondary)
+                        Button("Show in Finder") {
+                            try? FileManager.default.createDirectory(at: corrections.directory, withIntermediateDirectories: true)
+                            NSWorkspace.shared.activateFileViewerSelecting([corrections.directory])
+                        }
+                        Button("Delete…", role: .destructive) { confirmClearCorrections = true }
+                            .disabled(corrections.count == 0)
+                            .confirmationDialog("Delete all saved corrections?", isPresented: $confirmClearCorrections) {
+                                Button("Delete Corrections", role: .destructive) { corrections.removeAll() }
+                            }
+                    }
+                }
+            } header: {
+                Text("Offline model training")
+            } footer: {
+                Text("The folder is a ready-made dataset for ml/train.py; see ml/README.md.")
+                    .foregroundStyle(.secondary)
             }
 
             Section("General") {
@@ -113,7 +146,7 @@ struct SettingsView: View {
                 Toggle("Show the window when TeXSnap opens", isOn: $settings.showWindowAtLaunch)
                 Stepper("Keep the last \(settings.historyLimit) snips", value: $settings.historyLimit, in: 20...2000, step: 20)
                 Button("Clear History…", role: .destructive) { confirmClear = true }
-                    .confirmationDialog("Delete all snips and their images?", isPresented: $confirmClear) {
+                    .confirmationDialog("Delete all snips and their images? Pinned snips are kept.", isPresented: $confirmClear) {
                         Button("Delete All", role: .destructive, action: clearHistory)
                     }
             }

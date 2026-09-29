@@ -27,6 +27,10 @@ final class Settings: ObservableObject {
     @Published var showWindowAtLaunch: Bool { didSet { defaults.set(showWindowAtLaunch, forKey: "showWindowAtLaunch") } }
     @Published var historyLimit: Int { didSet { defaults.set(historyLimit, forKey: "historyLimit") } }
     @Published var claudePath: String { didSet { defaults.set(claudePath, forKey: "claudePath") } }
+    /// After a snip: a small result pop-up near the pointer, or the main window.
+    @Published var showResultPopup: Bool { didSet { defaults.set(showResultPopup, forKey: "showResultPopup") } }
+    /// Save corrections of the offline model's results as training examples (stays on this Mac).
+    @Published var keepCorrections: Bool { didSet { defaults.set(keepCorrections, forKey: "keepCorrections") } }
     @Published var hotKey: HotKeyCombo {
         didSet { defaults.set(try? JSONEncoder().encode(hotKey), forKey: "hotKey") }
     }
@@ -52,6 +56,8 @@ final class Settings: ObservableObject {
             "showWindowAtLaunch": true,
             "historyLimit": 300,
             "claudePath": "",
+            "showResultPopup": true,
+            "keepCorrections": true,
         ])
         engine = EngineChoice(rawValue: defaults.string(forKey: "engine") ?? "") ?? .automatic
         model = defaults.string(forKey: "model") ?? ModelCatalog.defaultID
@@ -62,6 +68,8 @@ final class Settings: ObservableObject {
         showWindowAtLaunch = defaults.bool(forKey: "showWindowAtLaunch")
         historyLimit = max(10, defaults.integer(forKey: "historyLimit"))
         claudePath = defaults.string(forKey: "claudePath") ?? ""
+        showResultPopup = defaults.bool(forKey: "showResultPopup")
+        keepCorrections = defaults.bool(forKey: "keepCorrections")
         hotKey = (defaults.data(forKey: "hotKey")).flatMap { try? JSONDecoder().decode(HotKeyCombo.self, from: $0) } ?? .standard
         defaultFormats = defaults.dictionary(forKey: "defaultFormats") as? [String: String] ?? [:]
         hasAPIKey = apiKey != nil

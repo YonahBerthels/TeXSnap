@@ -6,6 +6,10 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate {
     let settings = Settings.shared
     private(set) lazy var store = SnipStore(settings: settings)
+    private lazy var resultPanel = ResultPanelController(store: store, settings: settings) { [weak self] id in
+        self?.store.selection = id
+        self?.showMainWindow()
+    }
 
     private var statusItem: NSStatusItem?
     private var statusMenu: NSMenu?
@@ -89,7 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     @objc func showSettings() {
         if settingsWindow == nil {
-            let view = SettingsView(settings: settings,
+            let view = SettingsView(settings: settings, corrections: store.corrections,
                                     clearHistory: { [weak self] in self?.store.clearAll() },
                                     pauseHotKey: { [weak self] paused in
                                         if paused { HotKeyManager.shared.unregister() } else { self?.registerHotKey() }
@@ -126,7 +130,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         Task { @MainActor in
             defer { capturing = false }
             if let data = await ScreenCapture.captureRegion() {
-                add(data)
+                add(data, windowInFront: wasVisible)
             } else if wasVisible {
                 mainWindow?.orderFront(nil)
             }
@@ -154,12 +158,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
     }
 
-    private func add(_ data: Data) {
-        guard store.add(imageData: data) != nil else {
+    /// Adds a snip and shows its result: in the window when that is where the user is working, otherwise
+    /// in the pop-up (unless the user turned it off).
+    private func add(_ data: Data, windowInFront: Bool? = nil) {
+        guard let id = store.add(imageData: data) else {
             inform("TeXSnap could not read that image.", detail: "Use a PNG, JPEG, HEIC, TIFF, GIF or PDF file.")
             return
         }
-        showMainWindow()
+        let inWindow = windowInFront ?? (mainWindow.map { $0.isVisible && $0.isKeyWindow && NSApp.isActive } ?? false)
+        if settings.showResultPopup && !inWindow {
+            resultPanel.show(id)
+        } else {
+            resultPanel.close()
+            showMainWindow()
+        }
     }
 
     /// Screen Recording permission is required to capture other apps' windows.
@@ -284,12 +296,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         menu.addItem(withTitle: "Convert Clipboard Image", action: #selector(convertClipboard), keyEquivalent: "")
         menu.addItem(withTitle: "Open Image…", action: #selector(openImage), keyEquivalent: "")
 
-        let recent = store.snips.filter { $0.status == .done && $0.kind != .none }.prefix(6)
-        if !recent.isEmpty {
+        let copyable = store.snips.filter { $0.status == .done && $0.kind != .none }
+        let groups: [(String, [Snip])] = [("Copy a Pinned Snip", copyable.filter(\.pinned).prefix(10).map { $0 }),
+                                          ("Copy a Recent Snip", copyable.filter { !$0.pinned }.prefix(6).map { $0 })]
+        for (title, snips) in groups where !snips.isEmpty {
             menu.addItem(.separator())
-            let header = menu.addItem(withTitle: "Copy a Recent Snip", action: nil, keyEquivalent: "")
+            let header = menu.addItem(withTitle: title, action: nil, keyEquivalent: "")
             header.isEnabled = false
-            for snip in recent {
+            for snip in snips {
                 let flat = snip.latex.split(whereSeparator: \.isNewline).joined(separator: " ")
                 let title = flat.count > 52 ? String(flat.prefix(51)) + "…" : flat
                 let item = menu.addItem(withTitle: title, action: #selector(copyRecent(_:)), keyEquivalent: "")

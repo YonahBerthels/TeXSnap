@@ -30,7 +30,8 @@ enum LocalModel {
 /// Recognizes on this Mac with the local model. Only transcription: the model was not trained to repair or
 /// double-check, so those stay with Claude.
 struct LocalEngine: RecognitionEngine {
-    var displayName: String { "On this Mac" }
+    static let name = "On this Mac"
+    var displayName: String { Self.name }
     var isLocal: Bool { true }
 
     func complete(_ request: EngineRequest, onText: @escaping @Sendable (String) -> Void) async throws -> EngineOutput {

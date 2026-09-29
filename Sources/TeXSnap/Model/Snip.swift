@@ -44,6 +44,22 @@ struct Snip: Identifiable, Codable, Equatable {
     var model: String
     var engine: String
     var seconds: Double
+    // Optional so histories saved before these fields existed still decode.
+    private var pinnedFlag: Bool?
+    /// What the offline model first recognized, kept when the text is later edited or double-checked,
+    /// so the difference can become a training example (see CorrectionLog).
+    var localLatex: String?
+    var localKind: SnipKind?
+
+    private enum CodingKeys: String, CodingKey {
+        case id, created, imageFile, status, kind, latex, recognizedLatex, note, problems, model, engine, seconds
+        case pinnedFlag = "pinned", localLatex, localKind
+    }
+
+    var pinned: Bool {
+        get { pinnedFlag ?? false }
+        set { pinnedFlag = newValue ? true : nil }
+    }
 
     init(id: UUID = UUID(), imageFile: String) {
         self.id = id
@@ -61,6 +77,21 @@ struct Snip: Identifiable, Codable, Equatable {
     }
 
     var isEdited: Bool { status == .done && latex != recognizedLatex }
+
+    /// The final transcription differs from the offline model's: a correction worth learning from.
+    var correctsLocalModel: Bool {
+        guard status == .done, let localLatex else { return false }
+        return latex != localLatex || kind != localKind
+    }
+
+    /// Whether a search matches the LaTeX, what it recognized, or the kind.
+    func matches(_ query: String) -> Bool {
+        let words = query.lowercased().split(whereSeparator: \.isWhitespace)
+        guard !words.isEmpty else { return true }
+        let haystack = (latex + "\n" + recognizedLatex + "\n" + kind.title).lowercased()
+        let compact = haystack.filter { !$0.isWhitespace }
+        return words.allSatisfy { haystack.contains($0) || compact.contains($0) }
+    }
 }
 
 /// One copyable representation of a result, produced by LatexKit.formats.

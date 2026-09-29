@@ -18,6 +18,7 @@ final class SnipStore: ObservableObject {
 
     let settings: Settings
     let directory: URL
+    let corrections: CorrectionLog
     private var imagesDirectory: URL { directory.appendingPathComponent("images", isDirectory: true) }
     private var indexURL: URL { directory.appendingPathComponent("history.json") }
     private var tasks: [Snip.ID: Task<Void, Never>] = [:]
@@ -29,6 +30,7 @@ final class SnipStore: ObservableObject {
         self.settings = settings
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         self.directory = directory ?? support.appendingPathComponent("TeXSnap", isDirectory: true)
+        self.corrections = CorrectionLog(directory: self.directory.appendingPathComponent("Corrections", isDirectory: true))
         try? FileManager.default.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
         load()
     }
@@ -79,6 +81,9 @@ final class SnipStore: ObservableObject {
         pendingSave = nil
         guard let data = try? Self.encoder.encode(snips) else { return }
         try? data.write(to: indexURL, options: .atomic)
+        if settings.keepCorrections {
+            corrections.sync(snips) { imageURL($0) }
+        }
     }
 
     // MARK: Images
@@ -179,6 +184,10 @@ final class SnipStore: ObservableObject {
         snips[i].engine = result.engine
         snips[i].seconds = result.seconds
         snips[i].note = result.note
+        if result.engine == LocalEngine.name, case .transcribe = mode {
+            snips[i].localLatex = result.latex
+            snips[i].localKind = result.kind
+        }
         if case .verify = mode {
             let verdict = previous == result.latex ? "Double-checked: no changes needed." : "Double-check corrected the transcription."
             snips[i].note = [verdict, result.note].compactMap { $0 }.joined(separator: " ")
@@ -212,6 +221,12 @@ final class SnipStore: ObservableObject {
         guard let i = index(id), snips[i].status == .done, snips[i].kind != kind else { return }
         snips[i].kind = kind
         snips[i].problems = (try? LatexKit.shared.get())?.validate(kind: kind, latex: snips[i].latex) ?? []
+        scheduleSave()
+    }
+
+    func togglePin(_ id: Snip.ID) {
+        guard let i = index(id) else { return }
+        snips[i].pinned.toggle()
         scheduleSave()
     }
 
@@ -269,14 +284,17 @@ final class SnipStore: ObservableObject {
         scheduleSave()
     }
 
+    /// Deletes every snip except the pinned ones.
     func clearAll() {
-        delete(Set(snips.map(\.id)))
+        delete(Set(snips.filter { !$0.pinned }.map(\.id)))
     }
 
+    /// Keeps the newest `historyLimit` unpinned snips; pinned ones never count against the limit.
     private func trimHistory() {
         let limit = max(10, settings.historyLimit)
-        guard snips.count > limit else { return }
-        let excess = snips[limit...].filter { $0.status != .running }.map(\.id)
+        let unpinned = snips.filter { !$0.pinned }
+        guard unpinned.count > limit else { return }
+        let excess = unpinned[limit...].filter { $0.status != .running }.map(\.id)
         delete(Set(excess))
     }
 }

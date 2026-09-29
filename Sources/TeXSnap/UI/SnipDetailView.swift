@@ -91,6 +91,12 @@ struct SnipDetailView: View {
                     Text(details(snip)).foregroundStyle(.secondary)
                     Spacer()
                     Button {
+                        store.togglePin(snip.id)
+                    } label: {
+                        Image(systemName: snip.pinned ? "pin.fill" : "pin")
+                    }
+                    .help(snip.pinned ? "Unpin" : "Pin: keep this snip at the top of the history, even when it is trimmed or cleared")
+                    Button {
                         store.recognize(snip.id, mode: .verify(kind: snip.kind, latex: snip.latex))
                     } label: {
                         Label("Double-check", systemImage: "checkmark.seal")
