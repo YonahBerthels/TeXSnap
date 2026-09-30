@@ -1,4 +1,0 @@
-{
-  "kind": "math",
-  "latex": "\\mathcal{L}(\\theta) = -\\frac{1}{N} \\sum_{i=1}^{N} \\sum_{c=1}^{C} y_{i,c} \\log \\frac{\\exp(z_{i,c} / \\tau)}{\\sum_{c'=1}^{C} \\exp(z_{i,c'} / \\tau)}"
-}

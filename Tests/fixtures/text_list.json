@@ -1,4 +1,0 @@
-{
-  "kind": "text",
-  "latex": "\\textbf{Assumptions.} We assume the following:\n\\begin{enumerate}\n\\item The errors $\\varepsilon_i$ are independent with $\\mathbb{E}[\\varepsilon_i] = 0$.\n\\item The variance $\\sigma^2 = \\operatorname{Var}(\\varepsilon_i)$ is constant for all $i$.\n\\item The design matrix $X \\in \\mathbb{R}^{n \\times p}$ has full column rank.\n\\end{enumerate}"
-}

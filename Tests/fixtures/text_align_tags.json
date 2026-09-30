@@ -1,4 +1,0 @@
-{
-  "kind": "text",
-  "latex": "\\begin{align}\n\\nabla \\cdot \\mathbf{D} &= \\rho_f \\tag{1.1} \\\\\n\\nabla \\times \\mathbf{H} &= \\mathbf{J}_f + \\frac{\\partial \\mathbf{D}}{\\partial t} \\tag{1.2}\n\\end{align}"
-}

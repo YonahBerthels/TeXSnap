@@ -1,4 +1,0 @@
-{
-  "kind": "math",
-  "latex": "\\mathbb{Q} = \\left\\{ \\frac{p}{q} : p \\in \\mathbb{Z},\\ q \\in \\mathbb{N} \\setminus \\{0\\} \\right\\}"
-}
