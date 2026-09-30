@@ -1,4 +1,0 @@
-{
-  "kind": "math",
-  "latex": "\\boldsymbol{\\mu} = \\mathbb{E}[\\mathbf{x}], \\quad \\boldsymbol{\\Sigma} = \\mathbb{E}\\left[(\\mathbf{x} - \\boldsymbol{\\mu})(\\mathbf{x} - \\boldsymbol{\\mu})^\\top\\right]"
-}

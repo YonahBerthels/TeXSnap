@@ -1,4 +1,0 @@
-{
-  "kind": "math",
-  "latex": "\\begin{aligned} \\min_{x \\in \\mathbb{R}^n} \\quad & \\frac{1}{2} x^\\top Q x + c^\\top x \\\\ \\text{s.t.} \\quad & Ax \\leq b, \\\\ & x \\geq 0. \\end{aligned}"
-}

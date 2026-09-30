@@ -1,4 +1,0 @@
-{
-  "kind": "table",
-  "latex": "\\begin{tabular}{lcccc}\n\\toprule\n & \\multicolumn{2}{c}{CIFAR-10} & \\multicolumn{2}{c}{ImageNet} \\\\\n\\cmidrule(lr){2-3} \\cmidrule(lr){4-5}\nMethod & Acc. (\\%) & Params & Acc. (\\%) & Params \\\\\n\\midrule\nResNet-50 & $93.6 \\pm 0.2$ & 25.6M & 76.1 & 25.6M \\\\\nViT-B/16 & $98.1 \\pm 0.1$ & 86.6M & 81.8 & 86.6M \\\\\nOurs & $\\mathbf{98.7 \\pm 0.1}$ & 22.1M & \\textbf{83.2} & 22.1M \\\\\n\\bottomrule\n\\end{tabular}"
-}
