@@ -82,3 +82,6 @@ TeXSnap is released under the [MIT License](LICENSE). It bundles [KaTeX](https:/
 model is a fine-tuned [PaddleOCR-VL](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) and is distributed
 separately under Apache 2.0. See [CREDITS.md](CREDITS.md) for everything TeXSnap builds on, including the
 training data.
+
+DE BEUCKELEER WOUT
+DE WAAL JOEY
